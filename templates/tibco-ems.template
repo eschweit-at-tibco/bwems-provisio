@@ -37,10 +37,9 @@ Metadata:
           - EMSClientInstanceType
           - EMSClientAMIType
       - Label:
-          default: AWS Quick Start Configuration
+          default: Configuration
         Parameters:
-          - QSS3BucketName
-          - QSS3KeyPrefix
+          - S3BucketName
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
@@ -70,10 +69,8 @@ Metadata:
         default: Public subnet 1 ID in Availability Zone 1
       PublicSubnet2ID:
         default: Public subnet 2 ID in Availability Zone 2
-      QSS3BucketName:
-        default: Quick Start S3 Bucket Name
-      QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
+      S3BucketName:
+        default: S3 Bucket Name
       VPCCIDR:
         default: VPC CIDR
       VPCID:
@@ -299,8 +296,7 @@ Resources:
         EMSServerPort: !Ref EMSServerPort
         EMSS3BucketName: !Ref EMSS3BucketName
         KeyPairName: !Ref KeyPairName
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        S3BucketName: !Ref S3BucketName
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
         VPCID: !Ref VPCID
@@ -312,7 +308,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/templates/tibco-ems-client.template
+        https://${S3BucketName}.s3.amazonaws.com/templates/tibco-ems-client.template
       Parameters:
         BastionSecurityGroupID: !Ref BastionSecurityGroupID
         EMSAMIType: !Ref EMSClientAMIType
@@ -325,8 +321,7 @@ Resources:
         EMSServer1CP: !GetAtt EMSServerStack.Outputs.EMSServer1CP
         EMSServer2CP: !GetAtt EMSServerStack.Outputs.EMSServer2CP
         KeyPairName: !Ref KeyPairName
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        S3BucketName: !Ref QSS3BucketName
         PublicSubnet1ID: !Ref PublicSubnet1ID
         PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
