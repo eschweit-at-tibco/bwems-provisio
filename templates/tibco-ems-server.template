@@ -25,8 +25,7 @@ Metadata:
           - EMSServerPort
       - Label: AWS Quick Start Configuration
         Parameters:
-          - QSS3BucketName
-          - QSS3KeyPrefix
+          - S3BucketName
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
@@ -44,10 +43,8 @@ Metadata:
         default: EMS Server Port Number
       KeyPairName:
         default: SSH Key Name
-      QSS3BucketName:
-        default: Quick Start S3 Bucket Name
-      QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
+      S3BucketName:
+        default: S3 Bucket Name
       Subnet1ID:
         default: Subnet 1 ID
       Subnet2ID:
@@ -74,6 +71,12 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -82,10 +85,6 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -100,7 +99,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t2.medium
+    Default: t3.medium
     Description: Type of EC2 instance for the EMS Client instances
     Type: String
   EMSInstallerName:
@@ -108,7 +107,7 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.0_linux_x86_64.zip
+    Default: TIB_ems_8.4.1_linux_x86_64.zip
   EMSServerAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
@@ -128,6 +127,12 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -137,9 +142,6 @@ Parameters:
       - m4.2xlarge
       - m4.4xlarge
       - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -154,7 +156,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t2.large
+    Default: t3.large
     Description: Type of EC2 instance for the EMS Server instances
     Type: String
   EMSInstallerName:
@@ -162,7 +164,7 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.0_linux_x86_64.zip
+    Default: TIB_ems_8.4.1_linux_x86_64.zip
   EMSAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
@@ -187,7 +189,7 @@ Parameters:
       Name of an existing EC2 key pair. All instances will launch with this key
       pair.
     Type: 'AWS::EC2::KeyPair::KeyName'
-  QSS3BucketName:
+  S3BucketName:
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
     ConstraintDescription: >-
       Quick Start bucket name can include numbers, lowercase letters, uppercase
@@ -197,17 +199,6 @@ Parameters:
       S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
       start or end with a hyphen (-).
-    Type: String
-  QSS3KeyPrefix:
-    AllowedPattern: '^[0-9a-zA-Z-/]*$'
-    ConstraintDescription: >-
-      Quick Start key prefix can include numbers, lowercase letters, uppercase
-      letters, hyphens (-), and forward slash (/).
-    Default: quickstart-tibco-ems/
-    Description: >-
-      S3 key prefix for the Quick Start assets. Quick Start key prefix can
-      include numbers, lowercase letters, uppercase letters, hyphens (-), and
-      forward slash (/).
     Type: String
   Subnet1ID:
     Description: 'ID of Subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)'
@@ -364,7 +355,7 @@ Resources:
             Statement:
               - Action:
                   - 's3:GetObject'
-                Resource: !Sub 'arn:aws:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*'
+                Resource: !Sub 'arn:aws:s3:::${S3BucketName}/*'
                 Effect: Allow
           PolicyName: aws-quick-start-s3-policy
         - PolicyName: Instance-Logging-Role
