@@ -23,14 +23,12 @@ Metadata:
           - BastionSecurityGroupID
           - EMSServerClientAccessSecurityGroupID
           - EMSServerPort
-      - Label: AWS Quick Start Configuration
+      - Label: Configuration
         Parameters:
           - S3BucketName
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
-      EMSS3BucketName:
-        default: EMS S3 Bucket Name
       EMSServerClientAccessSecurityGroupID:
         default: EMS Clients Security Group ID
       EMSAMIType:
@@ -115,11 +113,6 @@ Parameters:
     Default: Amazon-Linux2-HVM
     Description: Server Operating System to use - Amazon Linux or Red Hat
     Type: String
-  EMSS3BucketName:
-    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
-    Description: >-
-      Name of the S3 bucket for retrieving EMS installer zip.
-    Type: String
   EMSServerInstanceType:
     AllowedValues:
       - t2.micro
@@ -179,11 +172,6 @@ Parameters:
     MinLength: '4'
     MaxLength: '5'
     Default: 7222
-  EMSS3BucketName:
-    AllowedPattern: '^[a-z0-9][a-z0-9-.]*$'
-    Description: >-
-      Name of the S3 bucket for retrieving EMS installer zip.
-    Type: String
   KeyPairName:
     Description: >
       Name of an existing EC2 key pair. All instances will launch with this key
@@ -192,7 +180,7 @@ Parameters:
   S3BucketName:
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
     ConstraintDescription: >-
-      Quick Start bucket name can include numbers, lowercase letters, uppercase
+      Bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
     Default: aws-quickstart
     Description: >-
@@ -350,14 +338,6 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       Policies:
-        - PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Action:
-                  - 's3:GetObject'
-                Resource: !Sub 'arn:aws:s3:::${S3BucketName}/*'
-                Effect: Allow
-          PolicyName: aws-quick-start-s3-policy
         - PolicyName: Instance-Logging-Role
           PolicyDocument:
             Statement:
@@ -375,13 +355,13 @@ Resources:
                 Action:
                   - 's3:ListBucket'
                   - 's3:GetBucketLocation'
-                Resource: !Sub 'arn:aws:s3:::${EMSS3BucketName}'
+                Resource: !Sub 'arn:aws:s3:::${S3BucketName}'
               - Effect: Allow
                 Action:
                   - 's3:GetObject'
                   - 's3:PutObject'
                   - 's3:DeleteObject'
-                Resource: !Sub 'arn:aws:s3:::${EMSS3BucketName}/*'
+                Resource: !Sub 'arn:aws:s3:::${S3BucketName}/*'
   IamInstanceRoleProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
