@@ -286,7 +286,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/templates/tibco-ems-server.template
+        https://${S3BucketName}.s3.amazonaws.com/templates/tibco-ems-server.template
       Parameters:
         BastionSecurityGroupID: !Ref BastionSecurityGroupID
         EMSServerClientAccessSecurityGroupID: !Ref EMSServerClientAccessSecurityGroup
@@ -321,7 +321,7 @@ Resources:
         EMSServer1CP: !GetAtt EMSServerStack.Outputs.EMSServer1CP
         EMSServer2CP: !GetAtt EMSServerStack.Outputs.EMSServer2CP
         KeyPairName: !Ref KeyPairName
-        S3BucketName: !Ref QSS3BucketName
+        S3BucketName: !Ref S3BucketName
         PublicSubnet1ID: !Ref PublicSubnet1ID
         PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
