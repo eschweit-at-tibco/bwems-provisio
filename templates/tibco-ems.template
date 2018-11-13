@@ -45,8 +45,6 @@ Metadata:
         default: Bastion Security Group ID
       DeployEMSClientStack:
         default: Deploy optional EMS client stack
-      EMSS3BucketName:
-        default: EMS S3 Bucket Name
       EMSClientAMIType:
         default: EMS Client AMI Type
       EMSClientInstanceType:
@@ -216,11 +214,11 @@ Parameters:
   S3BucketName:
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
     ConstraintDescription: >-
-      Quick Start bucket name can include numbers, lowercase letters, uppercase
+      Bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
     Default: eschweit-bwems
     Description: >-
-      S3 bucket name for the Quick Start assets. This string can include
+      Bucket name for assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
       start or end with a hyphen (-).
     Type: String
@@ -294,7 +292,6 @@ Resources:
         EMSInstallerName: !Ref EMSInstallerName
         EMSAMIType: !Ref EMSServerAMIType
         EMSServerPort: !Ref EMSServerPort
-        EMSS3BucketName: !Ref EMSS3BucketName
         KeyPairName: !Ref KeyPairName
         S3BucketName: !Ref S3BucketName
         Subnet1ID: !Ref PrivateSubnet1ID
@@ -315,7 +312,6 @@ Resources:
         EMSClientInstanceType: !Ref EMSClientInstanceType
         EMSInstallerName: !Ref EMSInstallerName
         EMSClientCount: 2
-        EMSS3BucketName: !Ref EMSS3BucketName
         EMSServerClientAccessSecurityGroupID: !Ref EMSServerClientAccessSecurityGroup
         EMSEFSID: !GetAtt EMSServerStack.Outputs.EMSEFSID
         EMSServer1CP: !GetAtt EMSServerStack.Outputs.EMSServer1CP
