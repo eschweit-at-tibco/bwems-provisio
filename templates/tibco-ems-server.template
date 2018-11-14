@@ -15,7 +15,6 @@ Metadata:
           - Subnet2ID
       - Label: TIBCO EMS Server Configuration
         Parameters:
-          - EMSS3BucketName
           - EMSInstallerName
           - EMSAMIType
           - EMSServerInstanceType
