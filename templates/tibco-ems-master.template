@@ -389,7 +389,6 @@ Resources:
         EMSClientAMIType: !Ref EMSClientAMIType
         EMSClientInstanceType: !Ref EMSClientInstanceType
         EMSInstallerName: !Ref EMSInstallerName
-        EMSS3BucketName: !Ref EMSS3BucketName
         EMSServerAMIType: !Ref EMSServerAMIType
         EMSServerInstanceType: !Ref EMSServerInstanceType
         EMSServerPort: !Ref EMSServerPort
