@@ -37,14 +37,17 @@ Metadata:
           - EMSClientInstanceType
           - EMSClientAMIType
       - Label:
-          default: Configuration
+          default: AWS Quick Start Configuration
         Parameters:
-          - S3BucketName
+          - QSS3BucketName
+          - QSS3KeyPrefix
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
       DeployEMSClientStack:
         default: Deploy optional EMS client stack
+      EMSS3BucketName:
+        default: EMS S3 Bucket Name
       EMSClientAMIType:
         default: EMS Client AMI Type
       EMSClientInstanceType:
@@ -67,8 +70,10 @@ Metadata:
         default: Public subnet 1 ID in Availability Zone 1
       PublicSubnet2ID:
         default: Public subnet 2 ID in Availability Zone 2
-      S3BucketName:
-        default: S3 Bucket Name
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
       VPCCIDR:
         default: VPC CIDR
       VPCID:
@@ -100,12 +105,6 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
-      - t3.micro
-      - t3.small
-      - t3.medium
-      - t3.large
-      - t3.xlarge
-      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -114,6 +113,10 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -136,7 +139,7 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.1_linux_x86_64.zip
+    Default: TIB_ems_8.4.0_linux_x86_64.zip
   EMSServerAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
@@ -156,12 +159,6 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
-      - t3.micro
-      - t3.small
-      - t3.medium
-      - t3.large
-      - t3.xlarge
-      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -170,6 +167,10 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -184,7 +185,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t3.large
+    Default: t2.large
     Description: Type of EC2 instance for the EMS Server instances
     Type: String
   EMSServerPort:
@@ -211,16 +212,27 @@ Parameters:
   PrivateSubnet2ID:
     Description: 'ID of Subnet 2 in Availability Zone 2 (e.g., subnet-b1f432cd)'
     Type: 'AWS::EC2::Subnet::Id'
-  S3BucketName:
+  QSS3BucketName:
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
     ConstraintDescription: >-
-      Bucket name can include numbers, lowercase letters, uppercase
+      Quick Start bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: eschweit-bwems
+    Default: aws-quickstart
     Description: >-
-      Bucket name for assets. This string can include
+      S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
       start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: '^[0-9a-zA-Z-/]*$'
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Default: quickstart-tibco-ems/
+    Description: >-
+      S3 key prefix for the Quick Start assets. Quick Start key prefix can
+      include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
     Type: String
   VPCCIDR:
     AllowedPattern: >-
@@ -284,7 +296,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${S3BucketName}.s3.amazonaws.com/templates/tibco-ems-server.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/tibco-ems-server.template
       Parameters:
         BastionSecurityGroupID: !Ref BastionSecurityGroupID
         EMSServerClientAccessSecurityGroupID: !Ref EMSServerClientAccessSecurityGroup
@@ -292,8 +304,10 @@ Resources:
         EMSInstallerName: !Ref EMSInstallerName
         EMSAMIType: !Ref EMSServerAMIType
         EMSServerPort: !Ref EMSServerPort
+        EMSS3BucketName: !Ref EMSS3BucketName
         KeyPairName: !Ref KeyPairName
-        S3BucketName: !Ref S3BucketName
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
         VPCID: !Ref VPCID
@@ -305,19 +319,21 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${S3BucketName}.s3.amazonaws.com/templates/tibco-ems-client.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/tibco-ems-client.template
       Parameters:
         BastionSecurityGroupID: !Ref BastionSecurityGroupID
         EMSAMIType: !Ref EMSClientAMIType
         EMSClientInstanceType: !Ref EMSClientInstanceType
         EMSInstallerName: !Ref EMSInstallerName
         EMSClientCount: 2
+        EMSS3BucketName: !Ref EMSS3BucketName
         EMSServerClientAccessSecurityGroupID: !Ref EMSServerClientAccessSecurityGroup
         EMSEFSID: !GetAtt EMSServerStack.Outputs.EMSEFSID
         EMSServer1CP: !GetAtt EMSServerStack.Outputs.EMSServer1CP
         EMSServer2CP: !GetAtt EMSServerStack.Outputs.EMSServer2CP
         KeyPairName: !Ref KeyPairName
-        S3BucketName: !Ref S3BucketName
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
         PublicSubnet1ID: !Ref PublicSubnet1ID
         PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
