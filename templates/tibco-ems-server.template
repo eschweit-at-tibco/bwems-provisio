@@ -173,11 +173,6 @@ Parameters:
     MinLength: '4'
     MaxLength: '5'
     Default: 7222
-  EMSS3BucketName:
-    AllowedPattern: '^[a-z0-9][a-z0-9-.]*$'
-    Description: >-
-      Name of the S3 bucket for retrieving EMS installer zip.
-    Type: String
   KeyPairName:
     Description: >
       Name of an existing EC2 key pair. All instances will launch with this key
