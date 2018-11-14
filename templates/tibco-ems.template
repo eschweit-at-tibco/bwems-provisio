@@ -26,7 +26,6 @@ Metadata:
         Parameters:
           - KeyPairName
           - EMSInstallerName
-          - EMSS3BucketName
           - EMSServerAMIType
           - EMSServerInstanceType
           - EMSServerPort
@@ -46,8 +45,6 @@ Metadata:
         default: Bastion Security Group ID
       DeployEMSClientStack:
         default: Deploy optional EMS client stack
-      EMSS3BucketName:
-        default: EMS S3 Bucket Name
       EMSClientAMIType:
         default: EMS Client AMI Type
       EMSClientInstanceType:
@@ -105,6 +102,12 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -113,10 +116,6 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -131,7 +130,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t2.medium
+    Default: t3.medium
     Description: Type of EC2 instance for the EMS Client instances
     Type: String
   EMSInstallerName:
@@ -139,18 +138,13 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.0_linux_x86_64.zip
+    Default: TIB_ems_8.4.1_linux_x86_64.zip
   EMSServerAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
       - RHEL-7.5_HVM_GA
     Default: Amazon-Linux2-HVM
     Description: Server Operating System to use - Amazon Linux2 or Red Hat
-    Type: String
-  EMSS3BucketName:
-    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
-    Description: >-
-      Name of the S3 bucket for retrieving EMS installer zip.
     Type: String
   EMSServerInstanceType:
     AllowedValues:
@@ -159,6 +153,12 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -167,10 +167,6 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -217,7 +213,7 @@ Parameters:
     ConstraintDescription: >-
       Quick Start bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: aws-quickstart
+    Default: eschweit-bwems
     Description: >-
       S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
@@ -228,7 +224,6 @@ Parameters:
     ConstraintDescription: >-
       Quick Start key prefix can include numbers, lowercase letters, uppercase
       letters, hyphens (-), and forward slash (/).
-    Default: quickstart-tibco-ems/
     Description: >-
       S3 key prefix for the Quick Start assets. Quick Start key prefix can
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
@@ -304,7 +299,6 @@ Resources:
         EMSInstallerName: !Ref EMSInstallerName
         EMSAMIType: !Ref EMSServerAMIType
         EMSServerPort: !Ref EMSServerPort
-        EMSS3BucketName: !Ref EMSS3BucketName
         KeyPairName: !Ref KeyPairName
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
@@ -326,7 +320,6 @@ Resources:
         EMSClientInstanceType: !Ref EMSClientInstanceType
         EMSInstallerName: !Ref EMSInstallerName
         EMSClientCount: 2
-        EMSS3BucketName: !Ref EMSS3BucketName
         EMSServerClientAccessSecurityGroupID: !Ref EMSServerClientAccessSecurityGroup
         EMSEFSID: !GetAtt EMSServerStack.Outputs.EMSEFSID
         EMSServer1CP: !GetAtt EMSServerStack.Outputs.EMSServer1CP
