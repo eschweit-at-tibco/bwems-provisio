@@ -15,6 +15,7 @@ Metadata:
           - Subnet2ID
       - Label: TIBCO EMS Server Configuration
         Parameters:
+          - EMSS3BucketName
           - EMSInstallerName
           - EMSAMIType
           - EMSServerInstanceType
@@ -22,12 +23,15 @@ Metadata:
           - BastionSecurityGroupID
           - EMSServerClientAccessSecurityGroupID
           - EMSServerPort
-      - Label: Configuration
+      - Label: AWS Quick Start Configuration
         Parameters:
-          - S3BucketName
+          - QSS3BucketName
+          - QSS3KeyPrefix
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
+      EMSS3BucketName:
+        default: EMS S3 Bucket Name
       EMSServerClientAccessSecurityGroupID:
         default: EMS Clients Security Group ID
       EMSAMIType:
@@ -40,8 +44,10 @@ Metadata:
         default: EMS Server Port Number
       KeyPairName:
         default: SSH Key Name
-      S3BucketName:
-        default: S3 Bucket Name
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
       Subnet1ID:
         default: Subnet 1 ID
       Subnet2ID:
@@ -68,12 +74,6 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
-      - t3.micro
-      - t3.small
-      - t3.medium
-      - t3.large
-      - t3.xlarge
-      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -82,6 +82,10 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -96,7 +100,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t3.medium
+    Default: t2.medium
     Description: Type of EC2 instance for the EMS Client instances
     Type: String
   EMSInstallerName:
@@ -104,13 +108,18 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.1_linux_x86_64.zip
+    Default: TIB_ems_8.4.0_linux_x86_64.zip
   EMSServerAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
       - RHEL-7.5_HVM_GA
     Default: Amazon-Linux2-HVM
     Description: Server Operating System to use - Amazon Linux or Red Hat
+    Type: String
+  EMSS3BucketName:
+    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
+    Description: >-
+      Name of the S3 bucket for retrieving EMS installer zip.
     Type: String
   EMSServerInstanceType:
     AllowedValues:
@@ -119,12 +128,6 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
-      - t3.micro
-      - t3.small
-      - t3.medium
-      - t3.large
-      - t3.xlarge
-      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -133,6 +136,10 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -147,7 +154,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t3.large
+    Default: t2.large
     Description: Type of EC2 instance for the EMS Server instances
     Type: String
   EMSInstallerName:
@@ -155,7 +162,7 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.1_linux_x86_64.zip
+    Default: TIB_ems_8.4.0_linux_x86_64.zip
   EMSAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
@@ -170,21 +177,37 @@ Parameters:
     MinLength: '4'
     MaxLength: '5'
     Default: 7222
+  EMSS3BucketName:
+    AllowedPattern: '^[a-z0-9][a-z0-9-.]*$'
+    Description: >-
+      Name of the S3 bucket for retrieving EMS installer zip.
+    Type: String
   KeyPairName:
     Description: >
       Name of an existing EC2 key pair. All instances will launch with this key
       pair.
     Type: 'AWS::EC2::KeyPair::KeyName'
-  S3BucketName:
+  QSS3BucketName:
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
     ConstraintDescription: >-
-      Bucket name can include numbers, lowercase letters, uppercase
+      Quick Start bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: eschweit-bwems
+    Default: aws-quickstart
     Description: >-
-      S3 bucket name for the assets. This string can include
+      S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
       start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: '^[0-9a-zA-Z-/]*$'
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Default: quickstart-tibco-ems/
+    Description: >-
+      S3 key prefix for the Quick Start assets. Quick Start key prefix can
+      include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
     Type: String
   Subnet1ID:
     Description: 'ID of Subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)'
@@ -336,6 +359,14 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       Policies:
+        - PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                  - 's3:GetObject'
+                Resource: !Sub 'arn:aws:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*'
+                Effect: Allow
+          PolicyName: aws-quick-start-s3-policy
         - PolicyName: Instance-Logging-Role
           PolicyDocument:
             Statement:
@@ -353,13 +384,13 @@ Resources:
                 Action:
                   - 's3:ListBucket'
                   - 's3:GetBucketLocation'
-                Resource: !Sub 'arn:aws:s3:::${S3BucketName}'
+                Resource: !Sub 'arn:aws:s3:::${EMSS3BucketName}'
               - Effect: Allow
                 Action:
                   - 's3:GetObject'
                   - 's3:PutObject'
                   - 's3:DeleteObject'
-                Resource: !Sub 'arn:aws:s3:::${S3BucketName}/*'
+                Resource: !Sub 'arn:aws:s3:::${EMSS3BucketName}/*'
   IamInstanceRoleProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
@@ -430,7 +461,7 @@ Resources:
               epel-release: []
               nfs-utils: []
           sources:
-            /tmp/ems/installer: !Sub 'https://${S3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
+            /tmp/ems/installer: !Sub 'https://${EMSS3BucketName}.s3.amazonaws.com/${EMSInstallerName}'
           files:
             /tmp/ems/scripts/ems-run-installer.sh:
               content: !Sub |
@@ -904,7 +935,7 @@ Resources:
           type: S3
           roleName: !Ref IamInstanceRole
           buckets:
-            - !Ref S3BucketName
+            - !Ref EMSS3BucketName
       'AWS::CloudFormation::Init':
         config:
           packages:
@@ -913,7 +944,7 @@ Resources:
               epel-release: []
               nfs-utils: []
           sources:
-            /tmp/ems/installer: !Sub 'https://${S3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
+            /tmp/ems/installer: !Sub 'https://${EMSS3BucketName}.s3.amazonaws.com/${EMSInstallerName}'
           files:
             /tmp/ems/scripts/ems-run-installer.sh:
               content: !Sub |
