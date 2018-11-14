@@ -178,11 +178,6 @@ Parameters:
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
     Default: TIB_ems_8.4.1_linux_x86_64.zip
-  EMSS3BucketName:
-    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
-    Description: >-
-      Name of the S3 bucket for retrieving EMS installer zip.
-    Type: String
   EMSServerAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
