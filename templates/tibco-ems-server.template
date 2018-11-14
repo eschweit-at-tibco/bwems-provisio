@@ -442,7 +442,7 @@ Resources:
           type: S3
           roleName: !Ref IamInstanceRole
           buckets:
-            - !Ref EMSS3BucketName
+            - !Ref S3BucketName
       'AWS::CloudFormation::Init':
         config:
           packages:
@@ -451,7 +451,7 @@ Resources:
               epel-release: []
               nfs-utils: []
           sources:
-            /tmp/ems/installer: !Sub 'https://${EMSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
+            /tmp/ems/installer: !Sub 'https://${S3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
           files:
             /tmp/ems/scripts/ems-run-installer.sh:
               content: !Sub |
@@ -925,7 +925,7 @@ Resources:
           type: S3
           roleName: !Ref IamInstanceRole
           buckets:
-            - !Ref EMSS3BucketName
+            - !Ref S3BucketName
       'AWS::CloudFormation::Init':
         config:
           packages:
@@ -934,7 +934,7 @@ Resources:
               epel-release: []
               nfs-utils: []
           sources:
-            /tmp/ems/installer: !Sub 'https://${EMSS3BucketName}.s3.amazonaws.com/${EMSInstallerName}'
+            /tmp/ems/installer: !Sub 'https://${S3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
           files:
             /tmp/ems/scripts/ems-run-installer.sh:
               content: !Sub |
