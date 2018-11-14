@@ -105,7 +105,7 @@ Parameters:
     Description: >-
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
-    Default: TIB_ems_8.4.0_linux_x86_64.zip
+    Default: TIB_ems_8.4.1_linux_x86_64.zip
   EMSClientCount:
     Type: Number
     Description: >-
