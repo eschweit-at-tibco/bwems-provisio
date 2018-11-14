@@ -9,7 +9,6 @@ Metadata:
     ParameterGroups:
       - Label: TIBCO EMS Client Configuration
         Parameters:
-          - EMSS3BucketName
           - EMSInstallerName
           - EMSAMIType
           - EMSClientCount
@@ -22,8 +21,6 @@ Metadata:
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
-      EMSS3BucketName:
-        default: EMS S3 Bucket Name
       EMSServerClientAccessSecurityGroupID:
         default: EMS Server Client Access Security Group ID
       EMSAMIType:
@@ -72,6 +69,12 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -80,10 +83,6 @@ Parameters:
       - m4.xlarge
       - m4.2xlarge
       - m4.4xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
@@ -112,11 +111,6 @@ Parameters:
     Description: >-
       Number of EMS client instances to create
     Default: 2
-  EMSS3BucketName:
-    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
-    Description: >-
-      Name of the S3 bucket for retrieving EMS installer zip.
-    Type: String
   EMSServerClientAccessSecurityGroupID:
     Type: 'AWS::EC2::SecurityGroup::Id'
     Description: >-
@@ -144,7 +138,7 @@ Parameters:
     ConstraintDescription: >-
       Quick Start bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: aws-quickstart
+    Default: eschweit-bwems
     Description: >-
       S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
@@ -155,7 +149,6 @@ Parameters:
     ConstraintDescription: >-
       Quick Start key prefix can include numbers, lowercase letters, uppercase
       letters, hyphens (-), and forward slash (/).
-    Default: quickstart-tibco-ems/
     Description: >-
       S3 key prefix for the Quick Start assets. Quick Start key prefix can
       include numbers, lowercase letters, uppercase letters, hyphens (-), and
@@ -271,13 +264,13 @@ Resources:
                 Action:
                   - 's3:ListBucket'
                   - 's3:GetBucketLocation'
-                Resource: !Sub 'arn:aws:s3:::${EMSS3BucketName}'
+                Resource: !Sub 'arn:aws:s3:::${QSS3BucketName}'
               - Effect: Allow
                 Action:
                   - 's3:GetObject'
                   - 's3:PutObject'
                   - 's3:DeleteObject'
-                Resource: !Sub 'arn:aws:s3:::${EMSS3BucketName}/*'
+                Resource: !Sub 'arn:aws:s3:::${QSS3BucketName}/installers/*'
   IamInstanceRoleProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
@@ -302,7 +295,7 @@ Resources:
           type: S3
           roleName: !Ref IamInstanceRole
           buckets:
-            - !Ref EMSS3BucketName
+            - !Ref QSS3BucketName
       'AWS::CloudFormation::Init':
         config:
           packages:
@@ -311,7 +304,7 @@ Resources:
               epel-release: []
               nfs-utils: []
           sources:
-            /tmp/ems/installer: !Sub 'https://${EMSS3BucketName}.s3.amazonaws.com/${EMSInstallerName}'
+            /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
           files:
             /tmp/ems/scripts/ems-prep-env.sh:
               content: !Sub |
