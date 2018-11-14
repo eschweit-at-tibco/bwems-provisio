@@ -23,11 +23,10 @@ Metadata:
           - BastionAMIOS
           - BastionInstanceType
       - Label:
-          default: TIBCO BW-EMS Server Configuration
+          default: TIBCO EMS Server Configuration
         Parameters:
           - KeyPairName
           - EMSInstallerName
-          - EMSS3BucketName
           - EMSServerAMIType
           - EMSServerInstanceType
           - EMSServerPort
@@ -73,8 +72,10 @@ Metadata:
         default: Public Subnet 1 CIDR
       PublicSubnet2CIDR:
         default: Public Subnet 2 CIDR
-      S3BucketName:
-        default: S3 Bucket Name
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
       RemoteAccessCIDR:
         default: Allowed Bastion External Access CIDR
       VPCCIDR:
@@ -104,10 +105,9 @@ Parameters:
       - t2.large
       - t3.nano
       - t3.micro
-      - t3.mini
+      - t3.small
       - t3.medium
       - t3.large
-      - t3.xlarge
       - t3.2xlarge
       - m5.large
       - m5.xlarge
@@ -141,11 +141,11 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.nano
       - t3.micro
-      - t3.mini
+      - t3.small
       - t3.medium
       - t3.large
-      - t3.xlarge
       - t3.2xlarge
       - m5.large
       - m5.xlarge
@@ -169,7 +169,7 @@ Parameters:
       - c3.4xlarge
       - c3.8xlarge
     ConstraintDescription: Must contain valid instance type
-    Default: t3.medium
+    Default: t2.medium
     Description: Type of EC2 instance for the EMS Client instances
     Type: String
   EMSInstallerName:
@@ -178,6 +178,11 @@ Parameters:
       Name of the TIBCO EMS Installation archive downloaded from TIBCO eDelivery
       site
     Default: TIB_ems_8.4.1_linux_x86_64.zip
+  EMSS3BucketName:
+    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
+    Description: >-
+      Name of the S3 bucket for retrieving EMS installer zip.
+    Type: String
   EMSServerAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
@@ -192,6 +197,12 @@ Parameters:
       - t2.medium
       - t2.large
       - t2.xlarge
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
@@ -257,16 +268,26 @@ Parameters:
     Default: 10.0.144.0/20
     Description: CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2
     Type: String
-  S3BucketName:
+  QSS3BucketName:
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
     ConstraintDescription: >-
       Quick Start bucket name can include numbers, lowercase letters, uppercase
       letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: aws-quickstart
+    Default: eschweit-bwems
     Description: >-
       S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot
       start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: '^[0-9a-zA-Z-/]*$'
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Description: >-
+      S3 key prefix for the Quick Start assets. Quick Start key prefix can
+      include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
     Type: String
   RemoteAccessCIDR:
     AllowedPattern: >-
@@ -331,7 +352,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${S3BucketName}.s3.amazonaws.com/vpc/templates/aws-vpc.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/aws-vpc/templates/aws-vpc.template
       Parameters:
         AvailabilityZones: !Join
           - ','
@@ -348,7 +369,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${S3BucketName}.s3.amazonaws.com/linux-bastion/templates/linux-bastion.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/linux-bastion/templates/linux-bastion.template
       Parameters:
         BastionAMIOS: !Ref BastionAMIOS
         BastionInstanceType: !Ref BastionInstanceType
@@ -356,7 +377,7 @@ Resources:
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
         QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Sub 'linux-bastion/'
+        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}submodules/linux-bastion/'
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
   EMSStack:
@@ -366,7 +387,7 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       TemplateURL: !Sub >-
-        https://${QSS3BucketName}.s3.amazonaws.com/templates/tibco-ems.template
+        https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/tibco-ems.template
       Parameters:
         BastionSecurityGroupID: !GetAtt BastionStack.Outputs.BastionSecurityGroupID
         DeployEMSClientStack: !Ref DeployEMSClientStack
