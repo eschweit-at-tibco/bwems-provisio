@@ -21,6 +21,8 @@ Metadata:
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion Security Group ID
+      BWInstallerName:
+        default: BW Installer Package Name
       EMSServerClientAccessSecurityGroupID:
         default: EMS Server Client Access Security Group ID
       EMSAMIType:
@@ -37,6 +39,8 @@ Metadata:
         default: EMS Server 1 Connection Point
       EMSServer2CP:
         default: EMS Server 2 Connection Point
+      FTLInstallerName:
+        default: FTL Installer Package Name
       KeyPairName:
         default: SSH Key Name
       QSS3BucketName:
@@ -55,6 +59,12 @@ Parameters:
       ID of the bastion host security group to enable SSH connections (e.g.,
       sg-7f16e910)
     Type: 'AWS::EC2::SecurityGroup::Id'
+  BWInstallerName:
+    Type: String
+    Description: >-
+      Name of the TIBCO BW Installation archive downloaded from TIBCO eDelivery
+      site
+    Default: TIB_BW_6.5.0_linux26gl23_x86_64.zip
   EMSAMIType:
     AllowedValues:
       - Amazon-Linux2-HVM
@@ -128,6 +138,12 @@ Parameters:
     Type: String
     Description: >-
       EMS Server 2 Connection Point
+  FTLInstallerName:
+    Type: String
+    Description: >-
+      Name of the TIBCO FTL Installation archive downloaded from TIBCO eDelivery
+      site
+    Default: TIB_ftl_5.4.1_linux_x86_64.zip
   KeyPairName:
     Description: >
       Name of an existing EC2 key pair. All instances will launch with this key
@@ -166,6 +182,12 @@ Parameters:
   PrivateSubnet2ID:
     Description: 'ID of Subnet 2 in Availability Zone 2 (e.g., subnet-b1f432cd)'
     Type: 'AWS::EC2::Subnet::Id'
+  SunecInstallerName:
+    Type: String
+    Description: >-
+      Name of the Sunec Installation archive downloaded from TIBCO eDelivery
+      site
+    Default: product_tibco_sunec_1.8.0.144_linux_x86_64.zip
   VPCID:
     Description: ID of your existing VPC for deployment
     Type: 'AWS::EC2::VPC::Id'
@@ -304,10 +326,11 @@ Resources:
               epel-release: []
               nfs-utils: []
           sources:
-            /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
             /tmp/bw/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${BWInstallerName}'
-            /tmp/tea/installer: !Sub https://${QSS3BucketName}.s3.amazonaws.com/installers/${TEAInstallerName}'
+            /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
+            /tmp/ftl/installer: !Sub https://${QSS3BucketName}.s3.amazonaws.com/installers/${FTLInstallerName}'
           files:
+            /tmp/bw/installer/sunec.zip: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/product_tibco_sunec_1.8.0.144_linux_x86_64.zip'
             /tmp/ems/scripts/ems-prep-env.sh:
               content: !Sub |
                 #!/bin/bash -e
@@ -461,6 +484,8 @@ Resources:
           chkconfig --add awslogs
           service awslogs start
           chkconfig awslogs on
+          
+          # Rename sunec package
 
           # All is well so signal success
           /opt/aws/bin/cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource EMSClientAutoScaling -r 'EMSClientLaunchConfiguration: cfn-init Success'
