@@ -330,6 +330,21 @@ Resources:
             /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
             /tmp/ftl/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${FTLInstallerName}'
           files:
+            /tmp/ftl/scripts/ftl-run-installer.sh:
+              content: !Sub |
+                #!/bin/bash -e
+                source /etc/profile
+                
+                cd /tmp/ftl/installer
+                ./tibco-ftl-5.4.1_linux_x86_64.bin silent > /dev/null
+                cd /var/tmp/FTL.install.*
+                yum install -y rpm/*.rpm > /dev/null 2>&1
+                cd /opt/tibco/ftl/5.4/scripts
+                ./post_install/*_install.sh
+                ########
+              mode: '000755'
+              owner: root
+              group: root
             /tmp/ems/scripts/ems-prep-env.sh:
               content: !Sub |
                 #!/bin/bash -e
@@ -411,6 +426,8 @@ Resources:
               command: /tmp/ems/scripts/ems-prep-env.sh
             02-ems-run-installer:
               command: /tmp/ems/scripts/ems-run-installer.sh
+            03-ftl-run-installer:
+              command: /tmp/ftl/scripts/ems-run-installer.sh
     Properties:
       AssociatePublicIpAddress: false
       EbsOptimized: false
