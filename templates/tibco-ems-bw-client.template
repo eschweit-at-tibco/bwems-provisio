@@ -480,9 +480,13 @@ Resources:
           # Helper function
           function error_exit
           {
+            echo "Error" >> /tmp/progress.log
+
             /opt/aws/bin/cfn-signal -e 1 --stack ${AWS::StackName} --region ${AWS::Region} --resource EMSClientLaunchConfiguration -r "EMSClientLaunchConfiguration: $1\n"
             exit 1
           }
+
+          echo "Start" > /tmp/progress.log
 
           # If Red-Hat, Install aws-cfn-bootstrap code
           if [ "${EMSAMIType}" != "Amazon-Linux2-HVM" ]; then
@@ -508,11 +512,15 @@ Resources:
              yum install -y aws-cfn-bootstrap
           fi
 
+          echo "Pre cfn-init" >> /tmp/progress.log
+
           # Initialize the instance
           /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EMSClientLaunchConfiguration --region ${AWS::Region}  || error_exit 'Failed to run cfn-init.'
 
           # Start up the cfn-hup daemon to listen for changes
           /opt/aws/bin/cfn-hup || error_exit 'Failed to start cfn-hup'
+
+          echo "Pre cloudwatch" >> /tmp/progress.log
 
           # Download/install AWS Cloudwatch Agent
           curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O || error_exit 'Failed to download awslogs-setup'
@@ -522,6 +530,8 @@ Resources:
           chkconfig --add awslogs
           service awslogs start
           chkconfig awslogs on
+          
+          echo "Pre cfn-signal" >> /tmp/progress.log
           
           # All is well so signal success
           /opt/aws/bin/cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource EMSClientAutoScaling -r 'EMSClientLaunchConfiguration: cfn-init Success'
