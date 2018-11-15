@@ -336,7 +336,7 @@ Resources:
                 source /etc/profile
                 
                 cd /tmp/ftl/installer
-                ./tibco-ftl-5.4.1_linux_x86_64.bin silent > /dev/null
+                ./*.bin silent > /dev/null
                 cd /var/tmp/FTL.install.*
                 yum install -y rpm/*.rpm > /dev/null 2>&1
                 cd /opt/tibco/ftl/5.4/scripts
@@ -426,8 +426,6 @@ Resources:
               command: /tmp/ems/scripts/ems-prep-env.sh
             02-ems-run-installer:
               command: /tmp/ems/scripts/ems-run-installer.sh
-            03-ftl-run-installer:
-              command: /tmp/ftl/scripts/ftl-run-installer.sh
     Properties:
       AssociatePublicIpAddress: false
       EbsOptimized: false
