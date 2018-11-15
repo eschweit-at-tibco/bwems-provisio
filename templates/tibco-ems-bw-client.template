@@ -360,7 +360,7 @@ Resources:
                 chown -R ec2-user:ec2-user $TIBCO_HOME
                 
                 # run FTL realm server
-                cd $TIBCO_HOME/ftl/current_version/bin
+                cd $TIBCO_HOME/ftl/current-version/bin
                 nohup ./tibrealmserver --http localhost:18080 &
                 
                 ########
