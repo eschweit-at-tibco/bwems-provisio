@@ -427,7 +427,7 @@ Resources:
             02-ems-run-installer:
               command: /tmp/ems/scripts/ems-run-installer.sh
             03-ftl-run-installer:
-              command: /tmp/ftl/scripts/ems-run-installer.sh
+              command: /tmp/ftl/scripts/ftl-run-installer.sh
     Properties:
       AssociatePublicIpAddress: false
       EbsOptimized: false
