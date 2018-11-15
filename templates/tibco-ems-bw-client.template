@@ -361,7 +361,7 @@ Resources:
                 
                 # run FTL realm server
                 cd $TIBCO_HOME/ftl/current-version/bin
-                nohup ./tibrealmserver --http localhost:18080 &
+                nohup ./tibrealmserver --http localhost:18080 > /dev/null 2>&1 &
                 
                 ########
               mode: '000755'
