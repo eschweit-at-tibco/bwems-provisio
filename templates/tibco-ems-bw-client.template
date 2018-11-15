@@ -305,6 +305,8 @@ Resources:
               nfs-utils: []
           sources:
             /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
+            /tmp/bw/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${BWInstallerName}'
+            /tmp/tea/installer: !Sub https://${QSS3BucketName}.s3.amazonaws.com/installers/${TEAInstallerName}'
           files:
             /tmp/ems/scripts/ems-prep-env.sh:
               content: !Sub |
