@@ -328,7 +328,7 @@ Resources:
           sources:
             /tmp/bw/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${BWInstallerName}'
             /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
-            /tmp/ftl/installer: !Sub https://${QSS3BucketName}.s3.amazonaws.com/installers/${FTLInstallerName}'
+            /tmp/ftl/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${FTLInstallerName}'
           files:
             /tmp/bw/installer/sunec.zip: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/product_tibco_sunec_1.8.0.144_linux_x86_64.zip'
             /tmp/ems/scripts/ems-prep-env.sh:
