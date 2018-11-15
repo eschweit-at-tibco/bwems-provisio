@@ -27,3 +27,9 @@
 <!-- The 'selectedProfiles' value is a comma separated list of profiles to install. If a profile is listed which does not exist, then it is ignored and the default profile will be used. At least one profile must be listed if useInstallProfile is set to true -->
 <entry key="useInstallProfile">true</entry>
 <entry key="selectedProfiles">Runtime</entry>
+
+<!-- BW upgrade -->
+<!-- Option to backup domains during BW upgrade -->
+<entry key="tibco.bw.backup.domains">false</entry>
+
+</properties>
