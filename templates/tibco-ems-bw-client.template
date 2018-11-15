@@ -546,4 +546,4 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: !Ref EMSClientCount
-        Timeout: PT15M
+        Timeout: PT20M
