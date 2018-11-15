@@ -484,8 +484,6 @@ Resources:
           service awslogs start
           chkconfig awslogs on
           
-          # Rename sunec package
-
           # All is well so signal success
           /opt/aws/bin/cfn-signal -e 0 --stack ${AWS::StackName} --region ${AWS::Region} --resource EMSClientAutoScaling -r 'EMSClientLaunchConfiguration: cfn-init Success'
           ########
