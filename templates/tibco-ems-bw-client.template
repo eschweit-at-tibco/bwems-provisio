@@ -336,7 +336,7 @@ Resources:
                 source /etc/profile
                 
                 cd /tmp/bw/installer
-                wget https://${QSS3BucketName}.s3.amazonaws.com/installers/product_tibco_sunec_1.8.0.144_linux_x86_64.zip
+                wget https://${QSS3BucketName}.s3.amazonaws.com/installers/${SunecInstallerName}
                 wget https://${QSS3BucketName}.s3.amazonaws.com/etc/bwems_bw.silent
                 
                 ./*.bin -silent -V responseFile='bwems_bw.silent'
