@@ -341,6 +341,14 @@ Resources:
                 yum install -y rpm/*.rpm > /dev/null 2>&1
                 cd /opt/tibco/ftl/5.4/scripts
                 ./post_install/*_install.sh
+                
+                # change the owner of EMS to ec2-user
+                chown -R ec2-user:ec2-user $TIBCO_HOME
+                
+                # run FTL realm server
+                cd $TIBCO_HOME/ftl/current_version/bin
+                nohup ./tibrealmserver --http localhost:18080 &
+                
                 ########
               mode: '000755'
               owner: root
