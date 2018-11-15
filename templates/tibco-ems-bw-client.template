@@ -330,6 +330,20 @@ Resources:
             /tmp/ems/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${EMSInstallerName}'
             /tmp/ftl/installer: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/installers/${FTLInstallerName}'
           files:
+            /tmp/bw/scripts/bw-run-installer.sh:
+              content: !Sub |
+                #!/bin/bash -e
+                source /etc/profile
+                
+                cd /tmp/bw/installer
+                wget https://${QSS3BucketName}.s3.amazonaws.com/installers/product_tibco_sunec_1.8.0.144_linux_x86_64.zip
+                wget https://${QSS3BucketName}.s3.amazonaws.com/installers/bwems_bw.silent
+                
+                
+                ########
+              mode: '000755'
+              owner: root
+              group: root
             /tmp/ftl/scripts/ftl-run-installer.sh:
               content: !Sub |
                 #!/bin/bash -e
